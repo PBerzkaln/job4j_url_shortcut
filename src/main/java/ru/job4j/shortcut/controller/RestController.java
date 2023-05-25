@@ -10,10 +10,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ru.job4j.shortcut.dto.SiteDTO;
+import ru.job4j.shortcut.dto.UrlDto;
 import ru.job4j.shortcut.model.Site;
+import ru.job4j.shortcut.model.Url;
 import ru.job4j.shortcut.service.SiteService;
-import ru.job4j.shortcut.util.LoginGenerator;
-import ru.job4j.shortcut.util.PasswordGenerator;
+import ru.job4j.shortcut.service.UrlService;
 
 @org.springframework.web.bind.annotation.RestController
 @RequestMapping("/site")
@@ -21,18 +22,11 @@ import ru.job4j.shortcut.util.PasswordGenerator;
 public class RestController {
     private static final Logger LOG = LogManager.getLogger(RestController.class.getName());
     private final SiteService siteService;
-    private final PasswordGenerator passwordGenerator;
-    private final LoginGenerator loginGenerator;
-    private final BCryptPasswordEncoder encoder;
+    private final UrlService urlService;
     private final ObjectMapper objectMapper;
 
     @PostMapping("/registration")
     public ResponseEntity<SiteDTO> create(@RequestBody Site site) {
-        /**
-         * Пароли хешируются и прямом виде не хранятся в базе.
-         */
-        site.setPassword(encoder.encode(passwordGenerator.generatePassword()));
-        site.setLogin(loginGenerator.generateLogin(site.getName()));
         var rsl = siteService.create(site);
         if (!rsl.isRegStatus()) {
             throw new ResponseStatusException(
@@ -40,10 +34,10 @@ public class RestController {
         }
         return new ResponseEntity<>(rsl, HttpStatus.CREATED);
     }
-//
-//    POST /convert
-//
-//    GET /redirect/УНИКАЛЬНЫЙ_КОД
-//
-//    GET /statistic
+
+    @PostMapping("/convert")
+    public ResponseEntity<UrlDto> convert(@RequestBody Url url) {
+        var rsl = urlService.create(url);
+        return new ResponseEntity<>(rsl, HttpStatus.CREATED);
+    }
 }
