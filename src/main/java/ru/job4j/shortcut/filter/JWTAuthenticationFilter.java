@@ -37,6 +37,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     public static final String TOKEN_PREFIX = "Bearer ";
     public static final String HEADER_STRING = "Authorization";
     public static final String SIGN_UP_URL = "/site/registration";
+    public static final String REDIRECT = "/site/redirect";
     private AuthenticationManager auth;
 
     /**

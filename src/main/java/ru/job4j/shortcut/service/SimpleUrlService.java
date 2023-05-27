@@ -1,12 +1,16 @@
 package ru.job4j.shortcut.service;
 
+import com.google.gson.Gson;
 import lombok.AllArgsConstructor;
 import net.jcip.annotations.ThreadSafe;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.job4j.shortcut.dto.UrlDto;
 import ru.job4j.shortcut.model.Url;
 import ru.job4j.shortcut.repository.UrlRepository;
 import ru.job4j.shortcut.util.LoginAndUrlKeyGenerator;
+
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -26,5 +30,30 @@ public class SimpleUrlService implements UrlService {
         var urlDto = new UrlDto();
         urlDto.setGeneratedKey(key);
         return urlDto;
+    }
+
+    @Transactional
+    @Override
+    public Optional<Url> findByKey(String key) {
+        var rsl = urlRepository.findByKey(key);
+        if (rsl.isPresent()) {
+            urlRepository.incrementByCode(key);
+            return rsl;
+        }
+        return rsl;
+
+
+    }
+
+    private <T> String toJson(T object) {
+        var gson = new Gson();
+        return gson.toJson(object);
+    }
+
+    @Override
+    public String findAllUrlAndCountPerEach() {
+        var map = new HashMap<>();
+        urlRepository.findAll().forEach(p -> map.put(p.getUrl(), p.getCount()));
+        return toJson(map);
     }
 }
