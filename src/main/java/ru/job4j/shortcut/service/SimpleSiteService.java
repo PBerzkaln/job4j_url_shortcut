@@ -1,5 +1,7 @@
 package ru.job4j.shortcut.service;
 
+import static java.util.Collections.emptyList;
+
 import lombok.AllArgsConstructor;
 import net.jcip.annotations.ThreadSafe;
 import org.springframework.security.core.userdetails.User;
@@ -16,8 +18,6 @@ import ru.job4j.shortcut.util.PasswordGenerator;
 
 import java.util.Optional;
 
-import static java.util.Collections.emptyList;
-
 @Service
 @AllArgsConstructor
 @ThreadSafe
@@ -30,13 +30,13 @@ public class SimpleSiteService implements SiteService, UserDetailsService {
     @Override
     public SiteDTO create(Site site) {
         var rslDTO = new SiteDTO();
-        if (siteRepository.existsByName(site.getName())) {
-            rslDTO.setRegStatus(false);
-            return rslDTO;
-        }
         var password = passwordGenerator.generatePassword();
         site.setPassword(encoder.encode(password));
-        site.setLogin(loginGenerator.generateLogin(site.getName()));
+        String login;
+        do {
+            login = loginGenerator.generateLogin(site.getName());
+        } while (siteRepository.existsByLogin(login));
+        site.setLogin(login);
         siteRepository.save(site);
         rslDTO.setRegStatus(true);
         rslDTO.setGeneratedLogin(site.getLogin());

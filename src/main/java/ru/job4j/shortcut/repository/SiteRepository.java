@@ -11,5 +11,5 @@ public interface SiteRepository extends CrudRepository<Site, Integer> {
 
     Optional<Site> findByLogin(String login);
 
-    boolean existsByName(String name);
+    boolean existsByLogin(String login);
 }

@@ -3,10 +3,13 @@ package ru.job4j.shortcut.service;
 import com.google.gson.Gson;
 import lombok.AllArgsConstructor;
 import net.jcip.annotations.ThreadSafe;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.job4j.shortcut.dto.UrlDto;
+import ru.job4j.shortcut.model.Site;
 import ru.job4j.shortcut.model.Url;
+import ru.job4j.shortcut.repository.SiteRepository;
 import ru.job4j.shortcut.repository.UrlRepository;
 import ru.job4j.shortcut.util.LoginAndUrlKeyGenerator;
 
@@ -17,6 +20,7 @@ import java.util.*;
 @ThreadSafe
 public class SimpleUrlService implements UrlService {
     private final UrlRepository urlRepository;
+    private final SiteRepository siteRepository;
     private final LoginAndUrlKeyGenerator keyGenerator;
 
     @Override
@@ -25,7 +29,10 @@ public class SimpleUrlService implements UrlService {
         do {
             key = keyGenerator.generateKey();
         } while (urlRepository.existsByKey(key));
+        String login = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Site site = siteRepository.findByLogin(login).get();
         url.setKey(key);
+        url.setSite(site);
         urlRepository.save(url);
         var urlDto = new UrlDto();
         urlDto.setGeneratedKey(key);
@@ -41,8 +48,6 @@ public class SimpleUrlService implements UrlService {
             return rsl;
         }
         return rsl;
-
-
     }
 
     private <T> String toJson(T object) {

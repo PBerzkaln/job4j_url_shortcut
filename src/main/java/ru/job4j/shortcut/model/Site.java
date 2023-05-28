@@ -3,10 +3,7 @@ package ru.job4j.shortcut.model;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 
 @Entity
@@ -18,9 +15,11 @@ public class Site {
     private int id;
 
     @NotBlank(message = "Site name must be not empty")
+    @Column(unique = true)
     private String name;
 
     @EqualsAndHashCode.Include
+    @Column(unique = true)
     private String login;
 
     @EqualsAndHashCode.Include
